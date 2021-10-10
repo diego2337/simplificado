@@ -1,6 +1,7 @@
 /vendor/
 node_modules/
 /.idea
+/docker/postgres
 npm-debug.log
 yarn-error.log
 
