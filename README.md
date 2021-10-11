@@ -62,3 +62,10 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+
+## Melhorias
+
+1. Utilizar [Laravel Sail](https://laravel.com/docs/8.x/sail) para subir Docker e serviços.
+1. Com Sail, tentar configurar mais apropriadamente a criação de um usuário e senha padrão, sem precisar entrar no container do Postgres.
+1. Utilizar PHP8 pra comentar sem a sintaxe do phpDoc.
