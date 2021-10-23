@@ -7,8 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Role extends Model
 {
+    public const CUSTOMER = 'CUSTOMER';
+    public const SELLER = 'SELLER';
     protected $table = 'role';
-    use HasFactory;
 
     protected $fillable = [
         'name',

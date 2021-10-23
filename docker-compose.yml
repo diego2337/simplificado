@@ -8,6 +8,9 @@ services:
       context: ./
       dockerfile: ./docker/Dockerfile
     image: api
+    environment:
+      XDEBUG_CONFIG: remote_host=172.19.0.4
+      PHP_IDE_CONFIG: "serverName=xdebug-docker"
     container_name: simplificado
     restart: unless-stopped
     working_dir: /var/www/

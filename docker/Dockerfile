@@ -1,4 +1,4 @@
-FROM php:7.4-fpm
+FROM phpdockerio/php80-fpm:latest
 
 # Arguments defined in docker-compose.yml
 ARG user
@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
+    php8.0-xdebug \
     zip \
     unzip
 
@@ -18,7 +19,16 @@ RUN apt-get update && apt-get install -y \
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
-RUN docker-php-ext-install php-pgsql mbstring exif pcntl bcmath gd
+#RUN docker-php-ext-install mbstring exif pcntl bcmath gd
+
+# Configure xdebug
+RUN echo "zend_extension=/usr/lib/php/20190902/xdebug.so" > /etc/php/8.0/mods-available/xdebug.ini \
+        && echo "xdebug.remote_enable=on" >> /etc/php/8.0/mods-available/xdebug.ini \
+        && echo "xdebug.remote_handler=dbgp" >> /etc/php/8.0/mods-available/xdebug.ini \
+        && echo "xdebug.remote_port=9000" >> /etc/php/8.0/mods-available/xdebug.ini \
+        && echo "xdebug.remote_autostart=on" >> /etc/php/8.0/mods-available/xdebug.ini \
+        && echo "xdebug.remote_connect_back=0" >> /etc/php/8.0/mods-available/xdebug.ini \
+        && echo "xdebug.idekey=docker" >> /etc/php/8.0/mods-available/xdebug.ini
 
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
