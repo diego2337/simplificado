@@ -17,7 +17,7 @@
 This is a simple Laravel application which uses [Nwidart Modules](https://nwidart.com/laravel-modules/v6/introduction) to decouple the application's main feature. Within the `Transaction` module lies all business logic to validate and transfer a given amount between users.
 
 ## Insomnia collection
-You can use the [Insomnia Collection](https://github.com/diego2337/simplificado/blob/develop/simplificado.json) to test the requests.
+You can use the [Insomnia Collection](https://github.com/diego2337/simplificado/blob/develop/simplificado.json) to test the request.
 ## Pending
 
 1. [Logging](https://laravel.com/docs/8.x/logging).
