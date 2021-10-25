@@ -1,19 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class User extends Authenticatable
+class User extends Model
 {
-    protected $table = 'user';
-    use HasApiTokens;
     use HasFactory;
-    use Notifiable;
+    protected $table = 'user';
 
     /**
      * The attributes that are mass assignable.
@@ -39,7 +37,15 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    public function role() {
-        return $this->belongsTo('Role', 'role_id');
+    /**
+     * The relationships that should always be loaded.
+     *
+     * @var array
+     */
+    protected $with = ['role'];
+
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class);
     }
 }
