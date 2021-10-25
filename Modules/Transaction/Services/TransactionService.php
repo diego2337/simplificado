@@ -5,29 +5,108 @@ declare(strict_types=1);
 namespace Modules\Transaction\Services;
 
 use App\Models\Role;
-use App\Repositories\BaseRepository;
+use App\Models\User;
 use App\Repositories\UserRepository;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
+use Modules\Transaction\Console\EmailResendCommand;
 use Modules\Transaction\Exceptions\TransactionException;
 use Modules\Transaction\DTO\TransactionDTO;
+use Modules\Transaction\Http\Clients\REST\AuthorizerClient;
+use Modules\Transaction\Http\Clients\REST\NotifierClient;
 
 
-class TransactionService extends BaseRepository
+class TransactionService
 {
     protected UserRepository $userRepository;
+    protected AuthorizerClient $authorizerClient;
+    protected NotifierClient $notifierClient;
 
-    public function __construct(UserRepository $userRepository)
+    public function __construct(
+        UserRepository $userRepository,
+        AuthorizerClient $authorizerClient,
+        NotifierClient $notifierClient,
+    )
     {
         $this->userRepository = $userRepository;
+        $this->authorizerClient = $authorizerClient;
+        $this->notifierClient = $notifierClient;
     }
 
     public function transaction(TransactionDTO $transactionDTO): string
     {
-        $user = $this->userRepository->find($transactionDTO->payer);
-        $role = $user->role()->get();
-        if ($role->get('name') == Role::SELLER)
-        {
+        $payer = $this->userRepository->find($transactionDTO->payer);
+        $payee = $this->userRepository->find($transactionDTO->payee);
+        $this->validateUser($payer);
+        $this->validateUser($payee);
+
+        $role = $payer?->role()->get();
+        $this->validateRole($role);
+
+        if ($this->isSeller($role)) {
             TransactionException::userNotCustomer();
         }
-        return 'Transaction successful';
+        if (!$this->hasEnoughCredit($payer, $transactionDTO->value))
+        {
+            TransactionException::notEnoughCredit();
+        }
+        if ($this->isAuthorized())
+        {
+            $this->makeTransaction($payer, $payee, $transactionDTO);
+            $this->notifyAndDispatch($payee, $transactionDTO);
+            return 'Transaction successful';
+        }
+        return 'There was an error processing the transaction';
+    }
+
+    public function validateUser(?User $user): void
+    {
+        if ($user == null) {
+            TransactionException::userNotFound();
+        }
+    }
+
+    public function validateRole(?Collection $role): void
+    {
+        if ($role == null) {
+            TransactionException::roleNotFound();
+        }
+    }
+
+    public function isSeller(Collection $role): bool
+    {
+        return $role?->get('name') == Role::SELLER;
+    }
+
+    public function hasEnoughCredit(User $user, float $balance): bool
+    {
+        return $user->getAttribute('balance') >= $balance;
+    }
+
+    public function isAuthorized(): bool
+    {
+        $response = $this->authorizerClient->request();
+        return $response->status == AuthorizerClient::STATUS;
+    }
+
+    public function makeTransaction(User $payer, User $payee, TransactionDTO $transactionDTO): void
+    {
+        DB::transaction(function () use ($payer, $payee, $transactionDTO) {
+            $payerBalance = $payer->getAttribute('balance') - $transactionDTO->value;
+            $payer->update([
+                'balance' => $payerBalance,
+            ]);
+
+            $payeeBalance = $payee->getAttribute('balance') + $transactionDTO->value;
+            $payee->update([
+                'balance' => $payeeBalance,
+            ]);
+        });
+    }
+
+    public function notifyAndDispatch(User $payee, TransactionDTO $transactionDTO)
+    {
+        $emailResendCommand = new EmailResendCommand($payee, $transactionDTO);
+        $emailResendCommand->handle();
     }
 }

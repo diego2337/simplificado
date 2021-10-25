@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Transaction\Providers;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Modules\Transaction\Console\EmailResendCommand;
 
 class TransactionProvider extends ServiceProvider
 {
@@ -11,20 +14,31 @@ class TransactionProvider extends ServiceProvider
 
     public function boot()
     {
+        $this->registerConfigs();
+        $this->registerViews();
+        $this->registerRoutes();
+        $this->registerCommands();
+    }
+
+    public function registerConfigs()
+    {
+        $this->mergeConfigFrom(__DIR__ . '/../Config/client.php', 'client');
+    }
+
+    public function registerViews()
+    {
+        $this->loadViewsFrom(__DIR__ . '../Resources/views', 'transaction');
+    }
+
+    public function registerRoutes()
+    {
         $this->loadRoutesFrom(__DIR__ . '/../Routes/api.php');
     }
 
-    /**
-     * Define the "api" routes for the application.
-     *
-     * These routes are typically stateless.
-     *
-     * @return void
-     */
-    protected function mapApiRoutes()
+    public function registerCommands()
     {
-        Route::prefix('transaction')
-            ->namespace($this->namespace)
-            ->group(base_path(__DIR__  .  '../Routes/api.php'));
+        $this->commands([
+            EmailResendCommand::class,
+        ]);
     }
 }

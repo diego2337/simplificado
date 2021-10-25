@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Modules\Transaction\Http\Controllers;
 
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Response;
-use Illuminate\Http\Response as StatusCode;
 use Modules\Transaction\Http\Requests\TransactionRequest;
 use Modules\Transaction\Services\TransactionService;
 use Modules\Transaction\DTO\TransactionDTO;
+use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class TransactionController extends Controller
 {
@@ -21,18 +22,21 @@ class TransactionController extends Controller
         $this->transactionService = $transactionService;
     }
 
-    public function transaction(TransactionRequest $request)
+    public function transaction(TransactionRequest $request): JsonResponse
     {
         $validatedRequest = $request->validated();
-        $transactionDto = new TransactionDTO([
-            'value' => $validatedRequest['value'],
-            'payer' => $validatedRequest['payer'],
-            'payee' => $validatedRequest['payee'],
-        ]);
         try {
-            return Response::json($this->transactionService->transaction($transactionDto), StatusCode::HTTP_OK);
+            $transactionDto = new TransactionDTO(
+                value: $validatedRequest['value'],
+                payer: $validatedRequest['payer'],
+                payee: $validatedRequest['payee'],
+            );
+            return Response::json($this->transactionService->transaction($transactionDto), ResponseAlias::HTTP_OK);
         } catch (Exception $e) {
-            return Response::json($e, $e->getCode());
+            return Response::json(
+                $e->getMessage(),
+                $e->getCode() != 0 ?: ResponseAlias::HTTP_INTERNAL_SERVER_ERROR
+            );
         }
     }
 }

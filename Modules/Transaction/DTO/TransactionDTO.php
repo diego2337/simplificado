@@ -2,17 +2,12 @@
 
 namespace Modules\Transaction\DTO;
 
-use Spatie\DataTransferObject\DataTransferObject;
-
-class TransactionDTO extends DataTransferObject
+class TransactionDTO
 {
-    /** @var float */
-    public float $value;
-
-    /** @var int  */
-    public int $payer;
-
-    /** @var int */
-    public int $payee;
-
+    public function __construct(
+        public float $value = 0.0,
+        public int $payer = 0,
+        public int $payee = 0,
+    )
+    {}
 }

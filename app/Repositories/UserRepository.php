@@ -19,4 +19,10 @@ class UserRepository
     {
         return $this->user->find($id);
     }
+
+    public function update(User $user, array $attributes)
+    {
+        $user->fill($attributes);
+        $user->save();
+    }
 }
