@@ -9,8 +9,8 @@
 
 ## How to run
 
-1. You'll need to install both [PHP8](https://www.php.net/releases/8.0/en.php) and [Composer 2](https://getcomposer.org/download/).
-2. After installing run `composer install`.
+1. Install both [PHP8](https://www.php.net/releases/8.0/en.php) and [Composer 2](https://getcomposer.org/download/).
+2. Run `composer install`.
 3. Run `sail up --build -d` and you're all set.
 
 ## Transaction
