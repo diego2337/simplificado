@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Repositories\UserRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Modules\Transaction\Console\EmailResendCommand;
 use Modules\Transaction\Exceptions\TransactionException;
 use Modules\Transaction\DTO\TransactionDTO;
@@ -43,19 +44,25 @@ class TransactionService
         $role = $payer?->role()->get();
         $this->validateRole($role);
 
+        Log::info("TransactionService::transaction validated payer, payee and role existence without errors");
+
         if ($this->isSeller($role)) {
+            Log::error("TransactionService::transaction error");
             TransactionException::userNotCustomer();
         }
         if (!$this->hasEnoughCredit($payer, $transactionDTO->value))
         {
+            Log::error("TransactionService::transaction error");
             TransactionException::notEnoughCredit();
         }
         if ($this->isAuthorized())
         {
             $this->makeTransaction($payer, $payee, $transactionDTO);
             $this->notifyAndDispatch($payee, $transactionDTO);
+            Log::info("TransactionService::transaction transaction successful");
             return 'Transaction successful';
         }
+        Log::info("TransactionService::transaction the transaction couldn't be completed");
         return 'There was an error processing the transaction';
     }
 
@@ -91,6 +98,7 @@ class TransactionService
 
     public function makeTransaction(User $payer, User $payee, TransactionDTO $transactionDTO): void
     {
+        Log::info("TransactionService::makeTransaction begin database transaction");
         DB::transaction(function () use ($payer, $payee, $transactionDTO) {
             $payerBalance = $payer->getAttribute('balance') - $transactionDTO->value;
             $payer->update([
@@ -102,6 +110,7 @@ class TransactionService
                 'balance' => $payeeBalance,
             ]);
         });
+        Log::info("TransactionService::makeTransaction end database transaction");
     }
 
     public function notifyAndDispatch(User $payee, TransactionDTO $transactionDTO)

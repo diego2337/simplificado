@@ -4,6 +4,7 @@ namespace Modules\Transaction\Console;
 
 use App\Models\User;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Modules\Transaction\DTO\TransactionDTO;
 use Modules\Transaction\Emails\SendTransactionSuccessEmail;
@@ -52,6 +53,7 @@ class EmailResendCommand extends Command
      */
     public function handle()
     {
+        Log::info("EmailResendCommand::handle request to notifier and send e-mail");
         if ($this->isNotified()) {
             Mail::to($this->user->getAttribute('email'))
                 ->send(new SendTransactionSuccessEmail($this->transactionDTO));
