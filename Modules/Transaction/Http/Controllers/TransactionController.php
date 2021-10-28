@@ -7,6 +7,7 @@ namespace Modules\Transaction\Http\Controllers;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Modules\Transaction\Http\Requests\TransactionRequest;
 use Modules\Transaction\Services\TransactionService;
@@ -31,8 +32,13 @@ class TransactionController extends Controller
                 payer: $validatedRequest['payer'],
                 payee: $validatedRequest['payee'],
             );
+            Log::info("TransactionController::transaction request \n", [ 'request' => $request ]);
             return Response::json($this->transactionService->transaction($transactionDto), ResponseAlias::HTTP_OK);
         } catch (Exception $e) {
+            Log::error("TransactionController::transaction error \n", [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             return Response::json(
                 $e->getMessage(),
                 $e->getCode() != 0 ?: ResponseAlias::HTTP_INTERNAL_SERVER_ERROR

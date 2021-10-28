@@ -20,6 +20,6 @@ This is a simple Laravel application which uses [Nwidart Modules](https://nwidar
 You can use the [Insomnia Collection](https://github.com/diego2337/simplificado/blob/develop/simplificado.json) to test the request.
 ## Pending
 
-1. [Logging](https://laravel.com/docs/8.x/logging).
-2. Unit tests for `User` and `Role` and layers (`Service`, `Repository`).
-3. Feature and unit tests for `Transaction` module.
+- [X] [Logging](https://laravel.com/docs/8.x/logging).
+- [ ] Unit tests for `User` and `Role` and layers (`Service`, `Repository`).
+- [ ] Feature and unit tests for `Transaction` module.

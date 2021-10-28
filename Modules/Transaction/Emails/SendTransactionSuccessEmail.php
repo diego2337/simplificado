@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Modules\Transaction\DTO\TransactionDTO;
 
 class SendTransactionSuccessEmail extends Mailable
@@ -31,6 +32,7 @@ class SendTransactionSuccessEmail extends Mailable
      */
     public function build()
     {
+        Log::info("SendTransactionSuccessEmail::build build e-mail");
         return $this
                 ->from(config('mail.from'))
                 ->view('transaction.send-transaction-success');
