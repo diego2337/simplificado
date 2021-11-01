@@ -11,15 +11,19 @@
 
 1. Install both [PHP8](https://www.php.net/releases/8.0/en.php) and [Composer 2](https://getcomposer.org/download/).
 2. Run `composer install`.
-3. Run `sail up --build -d` and you're all set.
+3. Run `sail up --build -d`.
+4. Run `sail php artisan key:generate`.
+5. Run `sail php artisan migrate` to create database.
+6. Run `sail php artisan db:seed` and you're all set.
 
 ## Transaction
 This is a simple Laravel application which uses [Nwidart Modules](https://nwidart.com/laravel-modules/v6/introduction) to decouple the application's main feature. Within the `Transaction` module lies all business logic to validate and transfer a given amount between users.
 
 ## Insomnia collection
-You can use the [Insomnia Collection](https://github.com/diego2337/simplificado/blob/develop/simplificado.json) to test the request.
+You can use this [Insomnia Collection](https://github.com/diego2337/simplificado/blob/develop/simplificado.json) to test the request.
 ## Pending
 
 - [X] [Logging](https://laravel.com/docs/8.x/logging).
-- [ ] Unit tests for `User` and `Role` and layers (`Service`, `Repository`).
-- [ ] Feature and unit tests for `Transaction` module.
+- [X] Unit tests for `User` and `Role` and layers (`Service`, `Repository`).
+- [X] Feature and unit tests for `Transaction` module.
+- [ ] Test timeout for `NotifierClient`.

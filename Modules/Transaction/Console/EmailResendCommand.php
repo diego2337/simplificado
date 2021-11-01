@@ -3,6 +3,7 @@
 namespace Modules\Transaction\Console;
 
 use App\Models\User;
+use GuzzleHttp\Client;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -44,6 +45,16 @@ class EmailResendCommand extends Command
         $this->user = $user;
         $this->transactionDTO = $transactionDTO;
         $this->notifierClient = new NotifierClient();
+    }
+
+    public function getNotifierClient(): NotifierClient
+    {
+        return $this->notifierClient;
+    }
+
+    public function setNotifierClient(Client $notifierClient): void
+    {
+        $this->notifierClient->setClient($notifierClient);
     }
 
     /**

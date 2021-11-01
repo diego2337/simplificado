@@ -33,15 +33,15 @@ class TransactionController extends Controller
                 payee: $validatedRequest['payee'],
             );
             Log::info("TransactionController::transaction request \n", [ 'request' => $request ]);
-            return Response::json($this->transactionService->transaction($transactionDto), ResponseAlias::HTTP_OK);
+            return Response::json(['message' => $this->transactionService->transaction($transactionDto)], ResponseAlias::HTTP_OK);
         } catch (Exception $e) {
             Log::error("TransactionController::transaction error \n", [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
             return Response::json(
-                $e->getMessage(),
-                $e->getCode() != 0 ?: ResponseAlias::HTTP_INTERNAL_SERVER_ERROR
+                ['error' => $e->getMessage()],
+                $e->getCode() != 0 ? $e->getCode() : ResponseAlias::HTTP_INTERNAL_SERVER_ERROR
             );
         }
     }

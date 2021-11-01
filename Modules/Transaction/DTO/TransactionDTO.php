@@ -10,4 +10,13 @@ class TransactionDTO
         public int $payee = 0,
     )
     {}
+
+    public function toJson(): array
+    {
+        return [
+            'value' => $this->value,
+            'payer' => $this->payer,
+            'payee' => $this->payee,
+        ];
+    }
 }
