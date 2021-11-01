@@ -6,8 +6,9 @@ namespace Modules\Transaction\Services;
 
 use App\Models\Role;
 use App\Models\User;
+use App\Repositories\RoleRepository;
 use App\Repositories\UserRepository;
-use Illuminate\Database\Eloquent\Collection;
+use GuzzleHttp\Client;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Modules\Transaction\Console\EmailResendCommand;
@@ -20,18 +21,41 @@ use Modules\Transaction\Http\Clients\REST\NotifierClient;
 class TransactionService
 {
     protected UserRepository $userRepository;
+    protected RoleRepository $roleRepository;
     protected AuthorizerClient $authorizerClient;
     protected NotifierClient $notifierClient;
 
     public function __construct(
         UserRepository $userRepository,
+        RoleRepository $roleRepository,
         AuthorizerClient $authorizerClient,
         NotifierClient $notifierClient,
     )
     {
         $this->userRepository = $userRepository;
+        $this->roleRepository = $roleRepository;
         $this->authorizerClient = $authorizerClient;
         $this->notifierClient = $notifierClient;
+    }
+
+    public function getAuthorizerClient(): AuthorizerClient
+    {
+        return $this->authorizerClient;
+    }
+
+    public function setAuthorizerClient(Client $authorizerClient): void
+    {
+        $this->authorizerClient->setClient($authorizerClient);
+    }
+
+    public function getNotifierClient(): NotifierClient
+    {
+        return $this->notifierClient;
+    }
+
+    public function setNotifierClient(Client $notifierClient): void
+    {
+        $this->notifierClient->setClient($notifierClient);
     }
 
     public function transaction(TransactionDTO $transactionDTO): string
@@ -41,7 +65,7 @@ class TransactionService
         $this->validateUser($payer);
         $this->validateUser($payee);
 
-        $role = $payer?->role()->get();
+        $role = $payer?->role()->get()->first();
         $this->validateRole($role);
 
         Log::info("TransactionService::transaction validated payer, payee and role existence without errors");
@@ -73,16 +97,16 @@ class TransactionService
         }
     }
 
-    public function validateRole(?Collection $role): void
+    public function validateRole(?Role $role): void
     {
         if ($role == null) {
             TransactionException::roleNotFound();
         }
     }
 
-    public function isSeller(Collection $role): bool
+    public function isSeller(Role $role): bool
     {
-        return $role?->get('name') == Role::SELLER;
+        return $role?->getAttribute('name') == Role::SELLER;
     }
 
     public function hasEnoughCredit(User $user, float $balance): bool
@@ -101,12 +125,12 @@ class TransactionService
         Log::info("TransactionService::makeTransaction begin database transaction");
         DB::transaction(function () use ($payer, $payee, $transactionDTO) {
             $payerBalance = $payer->getAttribute('balance') - $transactionDTO->value;
-            $payer->update([
+            $this->userRepository->update($payer, [
                 'balance' => $payerBalance,
             ]);
 
             $payeeBalance = $payee->getAttribute('balance') + $transactionDTO->value;
-            $payee->update([
+            $this->userRepository->update($payee, [
                 'balance' => $payeeBalance,
             ]);
         });

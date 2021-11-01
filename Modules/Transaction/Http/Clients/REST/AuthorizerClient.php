@@ -25,6 +25,16 @@ class AuthorizerClient implements RESTClientInterface
         ]);
     }
 
+    public function getClient(): Client
+    {
+        return $this->client;
+    }
+
+    public function setClient(Client $client): void
+    {
+        $this->client = $client;
+    }
+
     public function request(string $method = 'GET', string $uri = '', array $options = []): AuthorizerClientResponseDTO
     {
         try {
@@ -34,7 +44,7 @@ class AuthorizerClient implements RESTClientInterface
                 "options" => $options,
             ]);
             $response = $this->client->request($method, $uri, $options);
-            return AuthorizerResponseAdapter::adapt($response->getBody()->getContents());
+            return AuthorizerResponseAdapter::adapt((string) $response->getBody());
         } catch (GuzzleException $guzzleException) {
             Log::error("AuthorizerClient::request error \n", [
                 "message" => $guzzleException->getMessage(),

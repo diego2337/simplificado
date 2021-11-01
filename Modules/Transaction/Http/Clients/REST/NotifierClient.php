@@ -25,6 +25,16 @@ class NotifierClient implements RESTClientInterface
         ]);
     }
 
+    public function getClient(): Client
+    {
+        return $this->client;
+    }
+
+    public function setClient(Client $client): void
+    {
+        $this->client = $client;
+    }
+
     public function request(string $method = 'GET', string $uri = '', array $options = []): NotifierClientResponseDTO
     {
         try {
@@ -34,7 +44,7 @@ class NotifierClient implements RESTClientInterface
                 "options" => $options,
             ]);
             $response = $this->client->request($method, $uri, $options);
-            return NotifierResponseAdapter::adapt($response->getBody()->getContents());
+            return NotifierResponseAdapter::adapt((string) $response->getBody());
         } catch (GuzzleException $guzzleException) {
             Log::error("NotifierClient::request error \n", [
                 "message" => $guzzleException->getMessage(),

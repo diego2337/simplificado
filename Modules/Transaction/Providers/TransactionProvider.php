@@ -18,6 +18,7 @@ class TransactionProvider extends ServiceProvider
         $this->registerViews();
         $this->registerRoutes();
         $this->registerCommands();
+        $this->registerTranslations();
     }
 
     public function registerConfigs()
@@ -40,5 +41,10 @@ class TransactionProvider extends ServiceProvider
         $this->commands([
             EmailResendCommand::class,
         ]);
+    }
+
+    public function registerTranslations()
+    {
+        $this->loadTranslationsFrom(__DIR__ . '/../Resources/lang/en', 'translation');
     }
 }

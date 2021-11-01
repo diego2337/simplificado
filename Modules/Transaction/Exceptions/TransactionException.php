@@ -6,15 +6,20 @@ namespace Modules\Transaction\Exceptions;
 
 use App\Exceptions\BuildException;
 use Exception;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class TransactionException extends BuildException
 {
+    public const USER_NOT_FOUND = 'userNotFound';
+    public const ROLE_NOT_FOUND = 'roleNotFound';
+    public const USER_NOT_CUSTOMER = 'userNotCustomer';
+    public const NOT_ENOUGH_CREDITS = 'notEnoughCredits';
+
     public static function userNotFound()
     {
         $userNotFound = new Exception(
-          'User not found',
-          Response::HTTP_BAD_REQUEST,
+          trans('transaction::exceptions.' . self::USER_NOT_FOUND),
+          ResponseAlias::HTTP_BAD_REQUEST,
         );
         throw new BuildException($userNotFound);
     }
@@ -22,8 +27,8 @@ class TransactionException extends BuildException
     public static function roleNotFound()
     {
         $roleNotFound = new Exception(
-            'Role not found',
-            Response::HTTP_BAD_REQUEST,
+            trans('transaction::exceptions.' . self::ROLE_NOT_FOUND),
+            ResponseAlias::HTTP_BAD_REQUEST,
         );
         throw new BuildException($roleNotFound);
     }
@@ -31,8 +36,8 @@ class TransactionException extends BuildException
     public static function userNotCustomer()
     {
         $userNotCustomer = new Exception(
-            'Payer is not customer',
-            Response::HTTP_UNPROCESSABLE_ENTITY,
+            trans('transaction::exceptions.' . self::USER_NOT_CUSTOMER),
+            ResponseAlias::HTTP_UNPROCESSABLE_ENTITY,
         );
         throw new BuildException($userNotCustomer);
     }
@@ -40,8 +45,8 @@ class TransactionException extends BuildException
     public static function notEnoughCredit()
     {
         $notEnoughCredit = new Exception(
-            'Payer does not have enough credit',
-            Response::HTTP_UNPROCESSABLE_ENTITY,
+            trans('transaction::exceptions.' . self::NOT_ENOUGH_CREDITS),
+            ResponseAlias::HTTP_UNPROCESSABLE_ENTITY,
         );
         throw new BuildException($notEnoughCredit);
     }
